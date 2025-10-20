@@ -17,36 +17,51 @@ def fetch_page():
 
 def detect_appointments(html_content):
     soup = BeautifulSoup(html_content, 'html.parser')
-    
-    booking_keywords = [
-        'termin buchen', 
-        'termin auswählen', 
-        'buchen', 
-        'termin anmeldung', 
-        'anmeldung', 
-        'einbürgerungstest'
-    ]
-    page_text = soup.get_text().lower()
-    booking_found = any(keyword in page_text for keyword in booking_keywords)
-    
-    cart_images = soup.find_all('img', {
-        'src': lambda x: x and any(word in x.lower() for word in ['cart', 'warenkorb', 'shopping']),
-        'alt': lambda x: x and any(word in x.lower() for word in ['cart', 'warenkorb', 'shopping']),
-    })
-    
-    cart_elements = soup.find_all(class_=lambda x: x and any(word in str(x).lower() for word in  ['cart', 'warenkorb']))
-    
-    print(f"Cart images found: {len(cart_images)}")
-    for i, img in enumerate(cart_images):
-        print(f" Image {i+1}: src='{img.get('src')}', alt='{img.get('alt')}'")
 
-    print(f"Cart elements found: {len(cart_elements)}")
-    for i, elem in enumerate(cart_elements):
-        print(f" Element {i+1}: tag='{elem.name}', class='{elem.get('class')}', text='{elem.get_text()[:50]}...'")
-    
-    cart_found = len(cart_images) > 0 or len(cart_elements) > 0
-    
-    return booking_found and cart_found
+    # 1) Appointment-specific keywords (avoid generic page text)
+    booking_keywords = [
+        'termin anmeldung',
+        'anmeldung zum einbürgerungstest',
+    ]
+
+    # 2) Find appointment rows/sections that contain booking text
+    text_hits = soup.find_all(
+        string=lambda t: t and any(k in t.lower() for k in booking_keywords)
+    )
+
+    appointment_sections = []
+    for t in text_hits:
+        node = t if hasattr(t, 'parent') else None
+        if not node:
+            continue
+        container = node.find_parent(['tr', 'li', 'div', 'section'])
+        if container and container not in appointment_sections:
+            appointment_sections.append(container)
+
+    booking_found = len(appointment_sections) > 0
+
+    # 3) Within those sections, look for appointment-specific cart icons (FontAwesome)
+    appointment_carts = []
+    for sec in appointment_sections:
+        carts = sec.find_all('i', class_=lambda c: c and 'fa-shopping-cart' in ' '.join(c if isinstance(c, list) else [c]))
+        if carts:
+            appointment_carts.extend(carts)
+
+    # Fallback: cart-like classes inside the same section
+    if not appointment_carts:
+        for sec in appointment_sections:
+            carts = sec.find_all(class_=lambda c: c and any(x in ' '.join(c if isinstance(c, list) else [c]).lower() for x in ['shopping-cart', 'warenkorb']))
+            if carts:
+                appointment_carts.extend(carts)
+
+    # 4) Final decision: must have BOTH appointment section AND cart inside it
+    appointments_available = booking_found and len(appointment_carts) > 0
+
+    # Debug (optional)
+    print(f"Booking sections found: {len(appointment_sections)}")
+    print(f"Appointment carts found: {len(appointment_carts)}")
+
+    return appointments_available
 
 
 def main():
