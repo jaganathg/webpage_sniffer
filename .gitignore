@@ -10,3 +10,6 @@ doc/image
 # Virtual environments
 .venv
 .history
+.vscode
+
+.python_packages

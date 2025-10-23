@@ -1,0 +1,13 @@
+.git*
+.vscode
+__pycache__
+*.pyc
+.python_version
+local.settings.json
+test
+.venv
+main.py
+pyproject.toml
+uv.lock
+.DS_Store
+.history
