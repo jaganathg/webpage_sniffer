@@ -8,7 +8,7 @@ This system automatically monitors the VHS Darmstadt website for available Einb�
 - **Days**: Monday, Tuesday, Thursday
 - **Time**: 7:00 AM - 4:00 PM (German time - Europe/Berlin)
 
-**Email**: Sends notification to `riddhath@gmail.com` via Outlook.com connector
+**Email**: Sends notification to `any valid email` via Outlook.com connector
 
 ---
 
@@ -43,7 +43,7 @@ This system automatically monitors the VHS Darmstadt website for available Einb�
 │                Logic App (logic-vhs-email-notifier)         │
 │  - Receives HTTP request                                     │
 │  - Sends email via Outlook.com connector                    │
-│  - To: riddhath@gmail.com                                   │
+│  - To: requester email account                                   │
 │  - Subject: "VHS Appointment Available!"                    │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -257,7 +257,7 @@ az group delete \
 4. If failed, check error message
 
 **Check 3: Email Address**
-- Verify email is set to: `riddhath@gmail.com`
+- Verify email is set to: `any valid email`
 - Check Logic App workflow → "Send an email" action → "To" field
 
 ### Function Not Running
@@ -295,7 +295,7 @@ az account show
 
 2. **Redeploy:**
 ```bash
-cd /Users/jaganath.gajendran/Documents/J_Study/Python/webpage_sniffer
+cd /Users/{users}/Documents/J_Study/Python/webpage_sniffer
 func azure functionapp publish vhs-appointment-checker --build remote
 ```
 
@@ -313,7 +313,7 @@ Edit [function_app.py](function_app.py) with your changes.
 ### 2. Test Locally
 
 ```bash
-cd /Users/jaganath.gajendran/Documents/J_Study/Python/webpage_sniffer
+cd /Users/{users}/J_Study/Python/webpage_sniffer
 func start
 ```
 
@@ -520,7 +520,7 @@ az functionapp start --name vhs-appointment-checker --resource-group rg-vhs-appo
 ### Deploy
 ```bash
 # Deploy updates
-cd /Users/jaganath.gajendran/Documents/J_Study/Python/webpage_sniffer
+cd /Users/{users}/Documents/J_Study/Python/webpage_sniffer
 func azure functionapp publish vhs-appointment-checker --build remote
 ```
 
@@ -549,7 +549,7 @@ The Logic App workflow is configured with:
 
 **Action**: Send an email (V2)
 - Connection: Outlook.com
-- To: riddhath@gmail.com
+- To: valid email
 - Subject: VHS Appointment Available!
 - Body: The VHS appointment is available, book your slots now!
 
